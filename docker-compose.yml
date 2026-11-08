@@ -47,5 +47,20 @@ services:
     volumes:
       - .:/app
 
+  celery_worker:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env.example
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      celery -A app.worker.celery_app worker --loglevel=info --concurrency=1
+    volumes:
+      - .:/app
+
 volumes:
   postgres_data:

@@ -105,6 +105,23 @@ services:
     volumes:
       - .:/app
 
+  autoscaler:
+    build: .
+    container_name: matrix_autoscaler
+    restart: unless-stopped
+    env_file:
+      - .env.example
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      python -m app.worker.autoscaler_runner
+    volumes:
+      - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+
   nginx:
     build: ./nginx
     container_name: matrix_nginx_lb

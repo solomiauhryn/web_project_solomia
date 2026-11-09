@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Inversion Distributed System</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="logo-badge">A⁻¹</span>
+            <div>
+                <h1>Розподілена система обернення матриць</h1>
+                <p class="subtitle">FastAPI + Celery + Redis + Nginx Load Balancer (Round Robin)</p>
+            </div>
+        </div>
+        <div class="cluster-bar">
+            <div class="instance-pill">
+                <span>Відповів сервер:</span>
+                <strong id="servedByBadge">визначення...</strong>
+            </div>
+            <button id="testLbBtn" class="btn btn-outline btn-sm" type="button">
+                Перевірити балансування
+            </button>
+            <div id="userChip" class="user-chip hidden">
+                <span id="currentUsername"></span>
+                <span id="currentUserRole" class="role-badge"></span>
+                <button id="logoutBtn" class="btn btn-danger btn-sm" type="button">Вийти</button>
+            </div>
+        </div>
+    </header>
+
+    <div id="lbToast" class="lb-toast hidden"></div>
+
+    <main class="container">
+        <section id="authSection" class="card auth-card">
+            <div class="tabs">
+                <button id="tabLoginBtn" class="tab-btn active" type="button">Вхід у систему</button>
+                <button id="tabRegisterBtn" class="tab-btn" type="button">Реєстрація</button>
+            </div>
+
+            <form id="loginForm" class="form-stack">
+                <label>
+                    <span>Логін</span>
+                    <input type="text" id="loginUsername" required minlength="3" placeholder="Введіть логін">
+                </label>
+                <label>
+                    <span>Пароль</span>
+                    <input type="password" id="loginPassword" required minlength="6" placeholder="Введіть пароль">
+                </label>
+                <div class="row-actions">
+                    <button type="submit" class="btn btn-primary">Увійти</button>
+                    <button type="button" id="fillAdminBtn" class="btn btn-outline">Демо: Адміністратор</button>
+                </div>
+            </form>
+
+            <form id="registerForm" class="form-stack hidden">
+                <label>
+                    <span>Логін</span>
+                    <input type="text" id="regUsername" required minlength="3" placeholder="Наприклад: solomia">
+                </label>
+                <label>
+                    <span>Електронна пошта</span>
+                    <input type="email" id="regEmail" required placeholder="student@university.edu">
+                </label>
+                <label>
+                    <span>Пароль</span>
+                    <input type="password" id="regPassword" required minlength="6" placeholder="Мінімум 6 символів">
+                </label>
+                <button type="submit" class="btn btn-primary">Зареєструватися</button>
+            </form>
+            <div id="authError" class="alert alert-error hidden"></div>
+        </section>
+
+        <section id="workspaceSection" class="hidden">
+            <nav class="main-nav">
+                <button class="nav-tab active" data-target="viewCompute" type="button">
+                    Нове обчислення та поточний прогрес
+                </button>
+                <button class="nav-tab" data-target="viewHistory" type="button">
+                    Історія задач (<span id="historyCountBadge">0</span>)
+                </button>
+                <button id="adminNavBtn" class="nav-tab hidden" data-target="viewAdmin" type="button">
+                    Панель адміністратора (Моніторинг)
+                </button>
+            </nav>
+
+            <div id="viewCompute" class="view-pane">
+                <div class="grid-2">
+                    <div class="card">
+                        <h2>Запуск задачі обернення матриці A⁻¹</h2>
+                        <p class="hint">
+                            Метод Гауса–Жордана з вибором головного елемента. Складність O(N³).
+                            Допустимий розмір: від <strong id="minSizeLabel">2</strong> до <strong id="maxSizeLabel">600</strong>.
+                        </p>
+                        <form id="createTaskForm" class="form-stack">
+                            <label>
+                                <span>Розмірність квадратної матриці (N × N)</span>
+                                <input type="number" id="matrixSizeInput" value="180" min="2" max="1000" required>
+                            </label>
+                            <div id="clientValidationWarning" class="alert alert-warn hidden"></div>
+
+                            <label class="checkbox-row">
+                                <input type="checkbox" id="randomMatrixCheck" checked>
+                                <span>Згенерувати випадкову невироджену матрицю N × N автоматично</span>
+                            </label>
+
+                            <div id="manualMatrixWrap" class="hidden">
+                                <div class="manual-header">
+                                    <span>Ручне введення елементів матриці (для N ≤ 8):</span>
+                                    <button type="button" id="buildGridBtn" class="btn btn-outline btn-sm">Оновити сітку</button>
+                                </div>
+                                <div id="matrixGridContainer" class="matrix-grid"></div>
+                            </div>
+
+                            <div class="row-actions">
+                                <button type="submit" class="btn btn-primary">Запустити обчислення</button>
+                            </div>
+                        </form>
+                        <div id="taskFormError" class="alert alert-error hidden"></div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Стан поточної задачі</h2>
+                        <div id="noActiveTaskBox" class="empty-state">
+                            Наразі немає обраної активної задачі. Запустіть нову задачу або оберіть її з історії.
+                        </div>
+
+                        <div id="activeTaskCard" class="hidden">
+                            <div class="task-meta-header">
+                                <div>
+                                    <span class="meta-label">Задача ID:</span>
+                                    <strong id="activeTaskId">-</strong>
+                                    <span class="meta-label">Розмір:</span>
+                                    <strong id="activeTaskSize">-</strong>
+                                </div>
+                                <span id="activeTaskStatusBadge" class="status-badge">QUEUED</span>
+                            </div>
+
+                            <div class="progress-wrapper">
+                                <div class="progress-top">
+                                    <span id="activeTaskStage">Очікування...</span>
+                                    <strong id="activeTaskPercent">0%</strong>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div id="activeTaskProgressFill" class="progress-bar-fill" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <div id="queueEtaBanner" class="alert alert-info hidden"></div>
+                            <div id="activeTaskErrorBanner" class="alert alert-error hidden"></div>
+
+                            <div class="meta-grid">
+                                <div>
+                                    <span>Сервер воркера:</span>
+                                    <strong id="activeTaskWorker">-</strong>
+                                </div>
+                                <div>
+                                    <span>Час обчислення:</span>
+                                    <strong id="activeTaskTime">-</strong>
+                                </div>
+                                <div>
+                                    <span>Норма нев'язки ||A·A⁻¹ - I||:</span>
+                                    <strong id="activeTaskResidual">-</strong>
+                                </div>
+                            </div>
+
+                            <div class="row-actions">
+                                <button id="cancelActiveTaskBtn" class="btn btn-danger hidden" type="button">
+                                    Скасувати виконання задачі
+                                </button>
+                                <button id="viewResultMatrixBtn" class="btn btn-outline hidden" type="button">
+                                    Переглянути матрицю A⁻¹
+                                </button>
+                            </div>
+
+                            <div id="matrixResultModal" class="result-box hidden">
+                                <h3>Фрагмент оберненої матриці A⁻¹ (верхній лівий блок)</h3>
+                                <pre id="matrixResultPre"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="viewHistory" class="view-pane hidden">
+                <div class="card">
+                    <div class="section-header">
+                        <div>
+                            <h2>Історія результатів виконання задач</h2>
+                            <p class="hint">
+                                Активних задач: <strong id="activeQuotaText">0 / 2</strong> |
+                                Збережено в історії: <strong id="historyQuotaText">0 / 20</strong>
+                            </p>
+                        </div>
+                        <button id="refreshHistoryBtn" class="btn btn-outline btn-sm" type="button">Оновити список</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Розмір (N×N)</th>
+                                    <th>Статус</th>
+                                    <th>Прогрес / Етап</th>
+                                    <th>Воркер</th>
+                                    <th>Час (с)</th>
+                                    <th>Нев'язка</th>
+                                    <th>Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="viewAdmin" class="view-pane hidden">
+                <div class="grid-3">
+                    <div class="card">
+                        <h3>Навантаження на систему</h3>
+                        <div class="metric-row">
+                            <span>Завантаження CPU:</span>
+                            <strong id="adminCpuText">0%</strong>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="adminCpuFill" class="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                        <div class="metric-row">
+                            <span>Оперативна пам'ять (RAM):</span>
+                            <strong id="adminRamText">0%</strong>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="adminRamFill" class="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Горизонтальне масштабування (Autoscaler)</h3>
+                        <p class="hint">
+                            Кількість серверів воркерів: <strong id="adminWorkersCount">2 / 4</strong>
+                            (Мін: <span id="adminMinWorkers">2</span>, Макс: <span id="adminMaxWorkers">4</span>)
+                        </p>
+                        <p id="adminLastScaleAction" class="small-note"></p>
+                        <div class="row-actions">
+                            <button id="scaleDownBtn" class="btn btn-outline btn-sm" type="button">- Зменшити</button>
+                            <button id="scaleUpBtn" class="btn btn-primary btn-sm" type="button">+ Запустити сервер</button>
+                        </div>
+                        <div id="adminScaleError" class="alert alert-error hidden"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Вузли кластера (Load Balancer + Workers)</h3>
+                        <div class="node-section">
+                            <strong>Сервери FastAPI (Round Robin):</strong>
+                            <ul id="adminBackendNodesList" class="node-list"></ul>
+                        </div>
+                        <div class="node-section">
+                            <strong>Активні воркери Celery:</strong>
+                            <ul id="adminWorkerNodesList" class="node-list"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-header">
+                        <h3>Усі процеси та задачі користувачів</h3>
+                        <button id="refreshAdminBtn" class="btn btn-outline btn-sm" type="button">Оновити панель</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Користувач</th>
+                                    <th>Матриця</th>
+                                    <th>Статус</th>
+                                    <th>Прогрес</th>
+                                    <th>Поточний етап</th>
+                                    <th>Сервер</th>
+                                    <th>Керування</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTasksTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

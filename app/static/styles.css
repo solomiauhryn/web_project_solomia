@@ -1,0 +1,397 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: rgb(15, 23, 42);
+    color: rgb(241, 245, 249);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 28px;
+    background-color: rgb(30, 41, 59);
+    border-bottom: 1px solid rgb(51, 65, 85);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgb(59, 130, 246), rgb(99, 102, 241));
+    font-weight: 700;
+    font-size: 18px;
+    color: rgb(255, 255, 255);
+}
+
+.brand h1 {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: rgb(148, 163, 184);
+}
+
+.cluster-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.instance-pill {
+    background-color: rgb(15, 23, 42);
+    border: 1px solid rgb(59, 130, 246);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+}
+
+.instance-pill strong {
+    color: rgb(96, 165, 250);
+    margin-left: 4px;
+}
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgb(15, 23, 42);
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid rgb(51, 65, 85);
+}
+
+.role-badge {
+    font-size: 11px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgb(51, 65, 85);
+    color: rgb(226, 232, 240);
+}
+
+.lb-toast {
+    margin: 12px 28px 0;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background-color: rgb(30, 58, 138);
+    border: 1px solid rgb(59, 130, 246);
+    font-size: 13px;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 24px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background-color: rgb(30, 41, 59);
+    border: 1px solid rgb(51, 65, 85);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+.auth-card {
+    max-width: 460px;
+    margin: 48px auto;
+}
+
+.tabs, .main-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgb(51, 65, 85);
+    padding-bottom: 12px;
+}
+
+.tab-btn, .nav-tab {
+    background: transparent;
+    border: 1px solid transparent;
+    color: rgb(148, 163, 184);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.tab-btn.active, .nav-tab.active {
+    background-color: rgb(59, 130, 246);
+    color: rgb(255, 255, 255);
+}
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.form-stack label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: rgb(203, 213, 225);
+}
+
+.checkbox-row {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 10px !important;
+    cursor: pointer;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgb(71, 85, 105);
+    background-color: rgb(15, 23, 42);
+    color: rgb(248, 250, 252);
+    font-size: 14px;
+}
+
+.btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-primary {
+    background-color: rgb(59, 130, 246);
+    color: rgb(255, 255, 255);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid rgb(100, 116, 139);
+    color: rgb(226, 232, 240);
+}
+
+.btn-danger {
+    background-color: rgb(239, 68, 68);
+    color: rgb(255, 255, 255);
+}
+
+.row-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 20px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.hint {
+    font-size: 13px;
+    color: rgb(148, 163, 184);
+    margin: 6px 0 14px;
+}
+
+.alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.alert-error {
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgb(239, 68, 68);
+    color: rgb(252, 165, 165);
+}
+
+.alert-warn {
+    background-color: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgb(245, 158, 11);
+    color: rgb(253, 230, 138);
+}
+
+.alert-info {
+    background-color: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgb(59, 130, 246);
+    color: rgb(191, 219, 254);
+}
+
+.progress-wrapper {
+    margin: 16px 0;
+}
+
+.progress-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.progress-bar-bg {
+    width: 100%;
+    height: 12px;
+    background-color: rgb(15, 23, 42);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgb(59, 130, 246), rgb(16, 185, 129));
+    transition: width 0.3s ease;
+}
+
+.task-meta-header, .section-header, .manual-header, .metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin: 14px 0;
+    padding: 12px;
+    background-color: rgb(15, 23, 42);
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.meta-grid span {
+    display: block;
+    color: rgb(148, 163, 184);
+    font-size: 12px;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    background-color: rgb(51, 65, 85);
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.data-table th, .data-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid rgb(51, 65, 85);
+}
+
+.data-table th {
+    color: rgb(148, 163, 184);
+    font-weight: 600;
+}
+
+.matrix-grid {
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.matrix-grid input {
+    width: 100%;
+    padding: 6px;
+    text-align: center;
+}
+
+.result-box {
+    margin-top: 14px;
+    padding: 12px;
+    background-color: rgb(15, 23, 42);
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.result-box pre {
+    font-size: 12px;
+    color: rgb(167, 243, 208);
+}
+
+.node-list {
+    list-style: none;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.node-list li {
+    padding: 4px 0;
+    color: rgb(203, 213, 225);
+}
+
+.small-note {
+    font-size: 12px;
+    color: rgb(148, 163, 184);
+    margin-bottom: 10px;
+}
+
+.empty-state {
+    padding: 28px;
+    text-align: center;
+    color: rgb(148, 163, 184);
+    font-size: 14px;
+}
+
+.hidden {
+    display: none !important;
+}
